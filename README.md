@@ -1,4 +1,5 @@
 # vanestone.github.io
 ```javascript
-var vanestone = new Blog('github.com')
+// Here is Blog
+const vanestone = new Blog()
 ```
