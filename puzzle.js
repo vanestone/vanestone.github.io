@@ -5,14 +5,16 @@
   //游戏配置
   setting = {
     gameConfig: {
-      url: "http://sandbox.runjs.cn/uploads/rs/29/gwgzu2bz/1.jpg",
+      url: "l.jpg",
       id: "gameDiv",
       //生成规格横4 纵4
       size: "4*4",
       //每个元素的间隔
       margin: 1,
       //拖动时候块透明度
-      opacity: 0.8
+      opacity: 0.5,
+      border: "0 solid red",
+      boxShadow: "0 0 30px #ff4842"
     },
     setElement: {
       type: "div",
@@ -187,6 +189,9 @@
             var _newObj = that.addElement();
             _sg.boxObj.appendChild(_newObj);
             _newObj.style.opacity = _sg.opacity;
+            _newObj.style.border = _sg.border;
+            _newObj.style.boxShadow = _sg.boxShadow;
+            
             //移动位置
             _newObj.onmousemove = function (e) {
               m.mousemove.call(_newObj, e);
