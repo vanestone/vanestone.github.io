@@ -152,7 +152,36 @@
         this.style.left = getX_Y.call(this, "x", ev) + "px";
         this.style.top = getX_Y.call(this, "y", ev) + "px";
       }
-
+    },
+    touchEvent: {
+      touchstart: function (ev) {
+        ev = ev || ev.event;
+        ev.preventDefault();
+        //元素类型div
+        _st.type = "span";
+        _st.id = "maskBox";
+        _st.width = this.offsetWidth + "px";
+        _st.height = this.offsetHeight + "px";
+        _st.position = "absolute";
+        _st.background = "";
+        //_st.opacity=_sg.opacity;
+        _st.left = this.offsetLeft + "px";
+        _st.top = this.offsetTop + "px";
+      },
+      touchend: function (ev) {
+        ev = ev || ev.event;
+        //var _e=t.setElement;
+        ev.preventDefault();
+        var obj = document.getElementById(this.id);
+        if (obj) {
+          _sg.boxObj.removeChild(obj);
+        }
+      },
+      touchmove: function (ev) {
+        ev = ev || ev.event;
+        this.style.left = getX_Y.call(this, "x", ev) + "px";
+        this.style.top = getX_Y.call(this, "y", ev) + "px";
+      }
     },
     //正确检查 对比两个数组
     gameCheck: function () {
@@ -175,8 +204,8 @@
       var i = 0,
         olen = _obj.length;
       var that = this;
-      var m = that.mouseEvent;
       var box_index = 0;
+      var m = that.mouseEvent;
       for (; i < olen;) {
         (function (n) {
           //按下鼠标
@@ -246,7 +275,7 @@
               m.mouseup.call(_newObj, e);
               //计算是否完成拼图
               if (that.gameCheck()) {
-                alert("O(∩_∩)O哈哈~");
+                document.querySelector('#msg').innerHTML = '恭喜，拼接成功！'
               }
             }, false);
 
