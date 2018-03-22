@@ -242,5 +242,5 @@ Index.prototype.sucess = function () {
 }
 new Index({
   'img': 'love.jpg',
-  'cell': 3
+  'cell': 5
 });
