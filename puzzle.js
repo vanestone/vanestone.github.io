@@ -1,310 +1,246 @@
-/**
- * Created by jsonpeter on 2015/8/13.
- */
-(function ($g) {
-  //游戏配置
-  setting = {
-    gameConfig: {
-      url: "l.jpg",
-      id: "gameDiv",
-      //生成规格横4 纵4
-      size: "4*4",
-      //每个元素的间隔
-      margin: 1,
-      //拖动时候块透明度
-      opacity: 0.5,
-      border: "0 solid red",
-      boxShadow: "0 0 30px #ff4842"
-    },
-    setElement: {
-      type: "div",
-      id: "",
-      float: "",
-      display: "",
-      margin: "",
-      background: "",
-      width: "",
-      height: "",
-      left: "",
-      top: "",
-      position: "", //absolute
-      opacity: 0.4,
-      animate: 0.8
-    }
+//判断当前是否是移动端
+window.os = function () {
+  var ua = navigator.userAgent,
+    isWindowsPhone = /(?:Windows Phone)/.test(ua),
+    isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone,
+    isAndroid = /(?:Android)/.test(ua),
+    isFireFox = /(?:Firefox)/.test(ua),
+    isChrome = /(?:Chrome|CriOS)/.test(ua),
+    isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (
+      isFireFox && /(?:Tablet)/.test(ua)),
+    isPhone = /(?:iPhone)/.test(ua) && !isTablet,
+    isPc = !isPhone && !isAndroid && !isSymbian;
+  return {
+    isTablet: isTablet,
+    isPhone: isPhone,
+    isAndroid: isAndroid,
+    isPc: isPc
   };
-  //元素生成参数
-  var _sg = setting.gameConfig;
-  var _st = setting.setElement;
-  var gameInfo = function () {};
-  gameInfo.prototype = {
-    init: function () {
-      this.creatObj();
-      this.eventHand();
-    },
-    sortObj: {
-      rightlist: [], //正确的排序
-      romdlist: [] //打乱后的排序
-    },
-    creatObj: function () {
-      _sg.boxObj = document.getElementById(_sg.id) || "";
-      //尺寸自动获取
-      var _size = _sg.size.split('*') || [0, 0];
-      //计算单个div的高宽
-      var w = Math.floor(_sg.boxObj.offsetWidth / _size[0]);
-      var h = Math.floor(_sg.boxObj.offsetHeight / _size[1]);
-      //图片生成div
-      var _size = _sg.size.split('*') || [0, 0];
-      var wt = _size[0],
-        hg = _size[1];
-      //创建一个素组并排序打散
-      var sortList = [];
-      for (var a = 0; a < wt * hg; a++) {
-        sortList.push(a);
-      }
-      sortList.sort(randomsort);
-      this.sortObj.rightlist = sortList;
-      //---------
-      var _i = 0,
-        sid = 0;
-      for (; _i < wt; _i++) {
-        var _s = 0;
-        for (; _s < hg; _s++) {
-          //赋值随机打散后的id
-          _st.id = sortList[sid++];
-          _st.display = "block";
-          _st.float = "left";
-          //_st.top=w*_i+"px";
-          //_st.left=h*_s+"px";
-          _st.margin = _sg.margin + "px";
-          _st.background = "url('" + _sg.url + "') " + (-w * _s) + "px " + (-h * _i) + "px";
-          _st.width = w - _sg.margin * (wt / 2) + "px";
-          _st.height = h - _sg.margin * (hg / 2) + "px";
-          this.sortObj.romdlist.push(this.addElement());
-          // console.log( (_w*_i)+"px "+(_h*_s)+"px ");
-        }
-      }
+}();
 
-      this.boxSort();
-    },
-    boxSort: function () {
-      var _arrySort = this.sortObj.romdlist;
-      var _tmp = [],
-        _n = 0;
-      eachBox(_arrySort, function (d) {
-        _tmp.push(parseInt(_arrySort[d].id));
+function Index(param) {
+  this.dom = {
+    btnStart: $('.start'),
+    imgArea: $('.imgArea')
+  };
+  this.obj = {
+    imgOrigArr: [], //图片拆分后，存储正确排序的数组
+    imgRanArr: [], //图片顺序打乱后，存储当前排序的数组
+    imgWidth: parseInt(this.dom.imgArea.css('width')),
+    imgHeight: parseInt(this.dom.imgArea.css('height')),
+  };
+  this.cell = {
+    cellWidth: this.obj.imgWidth / param.cell,
+    cellHeight: this.obj.imgHeight / param.cell,
+  }
+  this.param = param;
+  this.img = param.img;
+  this.hasStart = false;
+  this.moveTime = 400;
+  this.init();
+}
+Index.prototype.init = function () {
+  this.imgSplit();
+  this.gameState();
+};
+Index.prototype.imgSplit = function () {
+  var self = this;
+  self.obj.imgOrigArr = [];
+  self.dom.imgArea.html('');
+  var cell = '';
+
+  for (var i = 0; i < self.param.cell; i++) {
+    for (var j = 0; j < self.param.cell; j++) {
+
+      self.obj.imgOrigArr.push(i * self.param.cell + j);
+      cell = document.createElement('div');
+
+      $(cell).attr('class', 'imgCell');
+      $(cell).css({
+        'width': self.cell.cellWidth + 'px',
+        'height': self.cell.cellHeight + 'px',
+        'left': j * self.cell.cellWidth + 'px',
+        'top': i * self.cell.cellHeight + 'px',
+        'background': "url('" + self.img + "')",
+        'backgroundPosition': (-j) * self.cell.cellWidth + 'px ' + (-i) * self.cell.cellHeight + 'px',
       });
-      //排序新数组
-      _tmp.sort(function (a, b) {
-        return a > b ? 1 : -1;
-      });
-      //排序后的带dom的素组
-      for (; _n < _tmp.length; _n++) {
-        var _s = 0;
-        for (; _s < _arrySort.length; _s++) {
-          if (_arrySort[_s].id == _tmp[_n]) {
-            _sg.boxObj.appendChild(_arrySort[_s]);
+      self.dom.imgArea.append(cell);
+    }
+  }
+  self.dom.imgCell = $('.imgCell');
+};
+Index.prototype.gameState = function () {
+  var self = this;
+  self.dom.btnStart.bind('click', function () {
+    if (!self.hasStart) {
+      $('.msg').text('');
+      $('#music')[0].pause();
+      $(this).text('复原');
+      self.hasStart = true;
+      self.randomArr();
+      self.cellOrder(self.obj.imgRanArr);
+      self.dom.imgCell.css({
+        'cursor': 'pointer'
+      }).bind(os.isPc ? 'mouseover' : 'touchstart', function () {
+        $(this).addClass('hover');
+      }).bind(os.isPc ? 'mouseout' : 'touchend', function () {
+        $(this).removeClass('hover');
+      }).bind(os.isPc ? 'mousedown' : 'touchstart', function (e) {
+        $(this).css('cursor', 'move');
+        var cellIndex1 = $(this).index();
+        if (!os.isPc) {
+          e.preventDefault();
+          e.pageX = e.changedTouches[0].pageX;
+          e.pageY = e.changedTouches[0].pageY;
+        }
+        var cellX = e.pageX - self.dom.imgCell.eq(cellIndex1).offset().left;
+        var cellY = e.pageY - self.dom.imgCell.eq(cellIndex1).offset().top;
+        
+        $(document).bind(os.isPc ? 'mousemove' : 'touchmove', function (e2) {
+          if (!os.isPc) {
+            e2.preventDefault();
+            e2.pageX = e2.changedTouches[0].pageX;
+            e2.pageY = e2.changedTouches[0].pageY;
           }
-        }
+          self.dom.imgCell.eq(cellIndex1).css({
+            'z-index': '40',
+            'left': (e2.pageX - cellX - self.dom.imgArea.offset().left) + 'px',
+            'top': (e2.pageY - cellY - self.dom.imgArea.offset().top) + 'px',
+          });
+        }).bind(os.isPc ? 'mouseup' : 'touchend', function (e3) {
+          if (!os.isPc) {
+            e3.preventDefault();
+            e3.pageX = e3.changedTouches[0].pageX;
+            e3.pageY = e3.changedTouches[0].pageY;
+          }
+          var cellIndex2 = self.changeIndex((e3.pageX - self.dom.imgArea.offset().left), (e3.pageY - self.dom.imgArea.offset().top), cellIndex1);
+          if (cellIndex1 == cellIndex2) {
+            self.cellReturn(cellIndex1);
+          } else {
+            self.cellChange(cellIndex1, cellIndex2);
+          }
+          if (os.isPc) {
+            $(document).unbind('mousemove').unbind('mouseup');
+          } else {
+            $(document).unbind('touchmove').unbind('touchend');
+          }
+        });
+      }).bind(os.isPc ? 'mouseup' : 'touchend', function () {
+        $(this).css('cursor', 'pointer')
+      });
+    } else {
+      $(this).text('开始');
+      $('.msg').text('');
+      $('#music')[0].pause();
+      self.hasStart = false;
+      self.cellOrder(self.obj.imgOrigArr);
+      if (os.isPc) {
+        self.dom.imgCell.css('cursor', 'default').unbind('mouseover').unbind('mousedown').unbind('mouseup');
+      } else {
+        self.dom.imgCell.css('cursor', 'default').unbind('touchstart').unbind('touchmove').unbind('touchend');
       }
-      return _tmp;
-    },
-    //添加元素
-    addElement: function () {
-      var _obj = document.createElement(_st.type);
-      _obj.id = _st.id;
-      _obj.style.display = _st.display;
-      _obj.style.float = _st.float;
-      _obj.style.margin = _st.margin;
-      _obj.style.background = _st.background;
-      _obj.style.width = _st.width;
-      _obj.style.position = _st.position;
-      _obj.style.top = _st.top;
-      _obj.style.left = _st.left;
-      _obj.style.height = _st.height;
-      return _obj;
-    },
-    mouseEvent: {
-      mousedown: function (ev) {
-        ev = ev || ev.event;
-        ev.preventDefault();
-        //元素类型div
-        _st.type = "span";
-        _st.id = "maskBox";
-        _st.width = this.offsetWidth + "px";
-        _st.height = this.offsetHeight + "px";
-        _st.position = "absolute";
-        _st.background = "";
-        //_st.opacity=_sg.opacity;
-        _st.left = this.offsetLeft + "px";
-        _st.top = this.offsetTop + "px";
-      },
-      mouseup: function (ev) {
-        ev = ev || ev.event;
-        //var _e=t.setElement;
-        ev.preventDefault();
-        var obj = document.getElementById(this.id);
-        if (obj) {
-          _sg.boxObj.removeChild(obj);
-        }
-      },
-      mousemove: function (ev) {
-        ev = ev || ev.event;
-        this.style.left = getX_Y.call(this, "x", ev) + "px";
-        this.style.top = getX_Y.call(this, "y", ev) + "px";
+    }
+  })
+}
+Index.prototype.randomArr = function () {
+  this.obj.imgRanArr = [];
+  var len = this.obj.imgOrigArr.length;
+  var order;
+  for (var i = 0; i < len; i++) {
+    order = Math.floor(Math.random() * len);
+    if (this.obj.imgRanArr.length > 0) {
+      while (jQuery.inArray(order, this.obj.imgRanArr) > -1) {
+        order = Math.floor(Math.random() * len);
       }
-    },
-    touchEvent: {
-      touchstart: function (ev) {
-        ev = ev || ev.event;
-        ev.preventDefault();
-        //元素类型div
-        _st.type = "span";
-        _st.id = "maskBox";
-        _st.width = this.offsetWidth + "px";
-        _st.height = this.offsetHeight + "px";
-        _st.position = "absolute";
-        _st.background = "";
-        //_st.opacity=_sg.opacity;
-        _st.left = this.offsetLeft + "px";
-        _st.top = this.offsetTop + "px";
-      },
-      touchend: function (ev) {
-        ev = ev || ev.event;
-        //var _e=t.setElement;
-        ev.preventDefault();
-        var obj = document.getElementById(this.id);
-        if (obj) {
-          _sg.boxObj.removeChild(obj);
-        }
-      },
-      touchmove: function (ev) {
-        ev = ev || ev.event;
-        this.style.left = getX_Y.call(this, "x", ev) + "px";
-        this.style.top = getX_Y.call(this, "y", ev) + "px";
-      }
-    },
-    //正确检查 对比两个数组
-    gameCheck: function () {
-      var s = 0,
-        bols = true;
-      var _arry = this.sortObj.rightlist;
-      var _arryRom = this.sortObj.romdlist;
-      console.log(_arry);
-      console.log(_arryRom);
-      for (; s < _arry.length; s++) {
-        if (_arry[s] != _arryRom[s].id) {
-          bols = false;
-          break;
-        }
-      }
-      return bols;
-    },
-    eventHand: function () {
-      var _obj = _sg.boxObj.getElementsByTagName("div");
-      var i = 0,
-        olen = _obj.length;
-      var that = this;
-      var box_index = 0;
-      var m = that.mouseEvent;
-      for (; i < olen;) {
-        (function (n) {
-          //按下鼠标
-          _obj[n].addEventListener("mousedown", function (e) {
-            var _this = this;
-            m.mousedown.call(_this, e);
-            _st.background = _this.style.background;
-            _this.style.background = "#FFF";
-            //生成可移动的div
-            var _newObj = that.addElement();
-            _sg.boxObj.appendChild(_newObj);
-            _newObj.style.opacity = _sg.opacity;
-            _newObj.style.border = _sg.border;
-            _newObj.style.boxShadow = _sg.boxShadow;
-            
-            //移动位置
-            _newObj.onmousemove = function (e) {
-              m.mousemove.call(_newObj, e);
-              // console.log("____"+this.offsetLeft);
-              var _i = 0;
-
-              for (; _i < olen; _i++) {
-                var _w = parseInt(_obj[_i].style.width) / 1.5;
-                var _h = parseInt(_obj[_i].style.height) / 1.5;
-                var _left = _obj[_i].offsetLeft;
-                var _top = _obj[_i].offsetTop;
-                var _boxX = parseInt(this.style.left);
-                var _boxY = parseInt(this.style.top);
-                //还原样式
-                eachBox(_obj, function (d) {
-                  _obj[d].style.opacity = 1.0;
-                });
-                //计算拖动到的位置
-                if (_left + _w > _boxX || _left > _boxX + _w) {
-                  if (_top + _h > _boxY || _top > _boxY + _h) {
-                    box_index = _i;
-                    _obj[_i].style.opacity = _st.opacity;
-                    break;
-                  }
-
-                }
-              }
-            };
-            //鼠标松开
-            _newObj.addEventListener("mouseup", function (e) {
-              //删除移动事件
-              _newObj.onmousemove = function (e) {};
-              //获取当前停留元素的坐标
-              var tagObj = {
-                id1: _obj[box_index].id,
-                id2: _this.id,
-                bg1: _obj[box_index].style.background,
-                bg2: this.style.background
-              };
-              //交换位置
-              _this.id = tagObj.id1;
-              _this.style.background = tagObj.bg1;
-              _obj[box_index].id = tagObj.id2;
-              _obj[box_index].style.background = tagObj.bg2;
-              //获取拖动后的排序
-              that.sortObj.romdlist = _obj;
-              //还原样式
-              eachBox(_obj, function (d) {
-                _obj[d].style.opacity = 1.0;
-              });
-              //删除浮动div
-              m.mouseup.call(_newObj, e);
-              //计算是否完成拼图
-              if (that.gameCheck()) {
-                document.querySelector('#msg').innerHTML = '恭喜，拼接成功！'
-              }
-            }, false);
-
-          }, false);
-
-        })(i++);
-
-      }
-
+    }
+    this.obj.imgRanArr.push(order);
+  }
+  return;
+};
+Index.prototype.cellOrder = function (arr) {
+  var self = this;
+  for (var i = 0; i < arr.length; i++) {
+    self.dom.imgCell.eq(i).animate({
+      'left': arr[i] % self.param.cell * self.cell.cellWidth + 'px',
+      'top': Math.floor(arr[i] / self.param.cell) * self.cell.cellHeight + 'px',
+    }, self.moveTime);
+  }
+};
+Index.prototype.changeIndex = function (x, y, orig) {
+  var self = this;
+  if (x < 0 || x > self.obj.imgWidth || y < 0 || y > self.obj.imgHeight) {
+    return orig;
+  }
+  var row = Math.floor(y / self.cell.cellHeight),
+    col = Math.floor(x / self.cell.cellWidth),
+    location = row * self.param.cell + col;
+  var i = 0,
+    len = self.obj.imgRanArr.length;
+  while ((i < len) && (self.obj.imgRanArr[i] !== location)) {
+    i++;
+  }
+  return i;
+}
+Index.prototype.cellReturn = function (index) {
+  var self = this;
+  var row = Math.floor(this.obj.imgRanArr[index] / self.param.cell),
+    col = this.obj.imgRanArr[index] % self.param.cell;
+  this.dom.imgCell.eq(index).animate({
+    'top': row * this.cell.cellHeight + 'px',
+    'left': col * this.cell.cellWidth + 'px',
+  }, this.moveTime, function () {
+    $(this).css('z-index', '10');
+  });
+}
+Index.prototype.cellChange = function (from, to) {
+  var self = this;
+  var rowFrom = Math.floor(this.obj.imgRanArr[from] / self.param.cell),
+    colFrom = this.obj.imgRanArr[from] % self.param.cell,
+    rowTo = Math.floor(this.obj.imgRanArr[to] / self.param.cell),
+    colTo = this.obj.imgRanArr[to] % self.param.cell,
+    temp = this.obj.imgRanArr[from];
+  this.dom.imgCell.eq(from).animate({
+    'top': rowTo * this.cell.cellHeight + 'px',
+    'left': colTo * this.cell.cellWidth + 'px',
+  }, this.moveTime, function () {
+    $(this).css('z-index', '10');
+  });
+  this.dom.imgCell.eq(to).animate({
+    'top': rowFrom * this.cell.cellHeight + 'px',
+    'left': colFrom * this.cell.cellWidth + 'px',
+  }, this.moveTime, function () {
+    $(this).css('z-index', '10');
+    self.obj.imgRanArr[from] = self.obj.imgRanArr[to];
+    self.obj.imgRanArr[to] = temp;
+    if (self.checkPass(self.obj.imgOrigArr, self.obj.imgRanArr)) {
+      self.sucess();
+    }
+  })
+}
+Index.prototype.checkPass = function (rightArr, puzzleArr) {
+  if (rightArr.toString() == puzzleArr.toString()) {
+    return true;
+  } else {
+    return false;
+  }
+};
+Index.prototype.sucess = function () {
+  for (var i = 0; i < this.obj.imgOrigArr.length; i++) {
+    if (this.dom.imgCell.eq(i).has('hover')) {
+      this.dom.imgCell.eq(i).removeClass('hover')
     }
   }
-  //随机数
-  function randomsort(a, b) {
-    return Math.random() > .5 ? -1 : 1; //用Math.random()函数生成0~1之间的随机数与0.5比较，返回-1或1
+  if (os.isPc) {
+    this.dom.imgCell.css('cursor', 'default').unbind('mouseover').unbind('mousedown').unbind('mouseup');
+  } else {
+    this.dom.imgCell.css('cursor', 'default').unbind('touchstart').unbind('touchmove').unbind('touchend');
   }
-
-  function eachBox(obj, fn) {
-    var _s = 0;
-    for (; _s < obj.length; _s++) {
-      fn(_s);
-    }
-  }
-
-  function getX_Y(s, ev) {
-    var _b = (ev.clientX - this.parentNode.offsetLeft) - (this.offsetWidth / 2);
-    if (s === "y") {
-      _b = (ev.clientY - this.parentNode.offsetTop) - (this.offsetHeight / 2);
-    }
-    return _b;
-  }
-  $g.gameInfo = new gameInfo();
-})(window)
+  this.dom.btnStart.text('开始');
+  this.hasStart = false;
+  $('.msg').text('嘿嘿，拼成功啦！');
+  $('#music')[0].play();
+}
+new Index({
+  'img': 'love.jpg',
+  'cell': 3
+});

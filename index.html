@@ -2,75 +2,26 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@vanestone</title>
-    <style>
-        body,
-        html {
-            padding: 0px;
-            margin: 0px;
-            background: #eee;
-        }
-
-        #gameDiv {
-            width: 400px;
-            height: 400px;
-            margin: 5px auto;
-            background: #F9F9F9;
-            padding: 1px 1px;
-            position: relative;
-        }
-
-        #msg {
-            font: 14px -apple-system, BlinkMacSystemFont, Helvetica Neue, PingFang SC, Microsoft YaHei, Source Han Sans SC, Noto Sans CJK SC, WenQuanYi Micro Hei, sans-serif;
-            ;
-            width: 400px;
-            text-align: center;
-            margin: 10px auto 0 auto;
-            position: relative;
-        }
-
-        #maskBox {
-            opacity: 0.5;
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Love Puzzle</title>
+  <link href="puzzle.css" rel="Stylesheet">
 </head>
 
 <body>
-    <div id="gameDiv"></div>
-    <div id="msg"></div>
-    <script src="./puzzle.js"></script>
-    <script>
-        window.onload = function () {
-            //判断当前是否是移动端
-            window.os = function () {
-                var ua = navigator.userAgent,
-                    isWindowsPhone = /(?:Windows Phone)/.test(ua),
-                    isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone,
-                    isAndroid = /(?:Android)/.test(ua),
-                    isFireFox = /(?:Firefox)/.test(ua),
-                    isChrome = /(?:Chrome|CriOS)/.test(ua),
-                    isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (
-                        isFireFox && /(?:Tablet)/.test(ua)),
-                    isPhone = /(?:iPhone)/.test(ua) && !isTablet,
-                    isPc = !isPhone && !isAndroid && !isSymbian;
-                return {
-                    isTablet: isTablet,
-                    isPhone: isPhone,
-                    isAndroid: isAndroid,
-                    isPc: isPc
-                };
-            }();
-
-            document.querySelector('#msg').innerHTML = JSON.stringify(window.os)
-
-            //生成函数
-            gameInfo.init();
-        }
-    </script>
+  <audio id="music">
+    <source src="zmql.mp3" type="audio/mpeg">
+  </audio>
+  <div class="wrapper">
+    <div class="start">开始</div>
+    <div class="msg"></div>
+    <div class="right">
+      <div class="imgArea"></div>
+    </div>
+  </div>
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  <script src="puzzle.js"></script>
 </body>
 
 </html>
