@@ -1,0 +1,28 @@
+{
+  "name": "vanestone.github.io",
+  "version": "0.1.0",
+  "description": "vanestone's personal blog",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vanestone/vanestone.github.io.git"
+  },
+  "author": "vanestone <vanestone16@gmail.com> (https://github.com/vanestone)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vanestone/vanestone.github.io/issues"
+  },
+  "homepage": "https://github.com/vanestone/vanestone.github.io#readme",
+  "devDependencies": {
+    "less": "^4.1.2",
+    "vitepress": "^0.20.9"
+  }
+}
